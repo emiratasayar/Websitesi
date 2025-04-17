@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Websitesi deneme</title>
+    <title>Websitesi Deneme</title>
     <link rel="stylesheet" href="style.css">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <header>
@@ -19,10 +21,63 @@
         <h2>Proje Bilgileri</h2>
         <p>Otonom Araç Projesi.</p>
     </section>
+
+    <!-- Spectrum Section -->
+    <section id="spectrum">
+        <h2>Spektrum Görüntüle</h2>
+        <button id="spectrumBtn">Spektrumu Çiz</button>
+        <canvas id="spectrumChart" width="800" height="400"></canvas>
+    </section>
     
     <footer>
     </footer>
 
-    <script src="script.js"></script>
+    <script>
+      // Spektrum butonuna tıklanıldığında Flask API'den JSON verisini çekip grafik olarak çizer
+      document.getElementById('spectrumBtn').addEventListener('click', async function() {
+        const btn = this;
+        btn.disabled = true;
+        btn.textContent = 'Yükleniyor…';
+
+        try {
+          // Raspberry Pi IP ve portunu kendi ortamınıza göre güncelleyin
+          const response = await fetch('http://192.168.1.42:5000/spectrum');
+          if (!response.ok) throw new Error(response.statusText);
+          const { freq, amp } = await response.json();
+
+          // Önceki grafik varsa sil
+          if (window.spectrumChart) {
+            window.spectrumChart.destroy();
+          }
+
+          // Yeni grafik oluştur
+          const ctx = document.getElementById('spectrumChart').getContext('2d');
+          window.spectrumChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: freq,
+              datasets: [{
+                label: 'Amplitude',
+                data: amp,
+                pointRadius: 0,
+                borderWidth: 1
+              }]
+            },
+            options: {
+              scales: {
+                x: { display: true, title: { display: true, text: 'Frequency (Hz)' } },
+                y: { display: true, title: { display: true, text: 'Amplitude' } }
+              }
+            }
+          });
+        } catch (error) {
+          console.error('Spektrum alınırken hata:', error);
+          alert('Spektrum alınırken hata: ' + error.message);
+        } finally {
+          btn.disabled = false;
+          btn.textContent = 'Spektrumu Çiz';
+        }
+      });
+    </script>
 </body>
 </html>
