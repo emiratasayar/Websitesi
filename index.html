@@ -35,7 +35,7 @@
       btn.textContent = 'Başlatılıyor…';
       try {
         // Buraya Raspberry Pi IP ve portunuzu yazın:
-        const res = await fetch('http://192.20.10.2:5000/start');
+        const res = await fetch('http://172.20.10.2:5000/start');
         if (!res.ok) throw new Error(res.statusText);
         alert('Kod başarıyla başlatıldı!');
       } catch (err) {
