@@ -186,7 +186,7 @@
       statusMsg.textContent = 'Durum: Başlatılıyor...';
       
       try {
-        const response = await fetch(serverUrl + '/spectrum');
+        const res = await fetch(serverUrl + '/start');
         if (!res.ok) throw new Error(res.statusText);
         
         const data = await res.json();
@@ -217,7 +217,7 @@
       statusMsg.textContent = 'Durum: Durduruluyor...';
       
       try {
-        const res = await fetch(${serverUrl}/stop);
+        const res = await fetch(serverUrl + '/stop');
         if (!res.ok) throw new Error(res.statusText);
         
         isSystemRunning = false;
@@ -362,9 +362,9 @@
     // Spektrum verilerini güncelle
     async function updateData() {
       try {
-        const response = await fetch(${serverUrl}/spectrum);
+        const response = await fetch(serverUrl + '/spectrum');
         if (!response.ok) {
-          throw new Error(HTTP error! status: ${response.status});
+          throw new Error("HTTP error! status: " + response.status);
         }
         
         const data = await response.json();
@@ -410,12 +410,11 @@
     // Sinyal bilgilerini güncelle
     function updateInfo(data) {
       const infoElement = document.getElementById('signal-info');
-      infoElement.innerHTML = `
-        <p><strong>Tepe Frekansı:</strong> ${data.peak_freq.toFixed(3)} MHz</p>
-        <p><strong>Tepe Gücü:</strong> ${data.peak_power.toFixed(2)} dB</p>
-        <p><strong>Ortalama Güç:</strong> ${data.avg_power.toFixed(2)} dB</p>
-        <p><strong>Son Ölçüm:</strong> ${new Date().toLocaleTimeString()}</p>
-      `;
+      infoElement.innerHTML = 
+        "<p><strong>Tepe Frekansı:</strong> " + data.peak_freq.toFixed(3) + " MHz</p>" +
+        "<p><strong>Tepe Gücü:</strong> " + data.peak_power.toFixed(2) + " dB</p>" +
+        "<p><strong>Ortalama Güç:</strong> " + data.avg_power.toFixed(2) + " dB</p>" +
+        "<p><strong>Son Ölçüm:</strong> " + new Date().toLocaleTimeString() + "</p>";
     }
     
     // Durum mesajını güncelle
