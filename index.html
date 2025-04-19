@@ -1,53 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Websitesi Deneme</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Websitesi Deneme</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header>
-        <h1>Websitesi Deneme</h1>
-        <nav>
-            <a href="index.html">Ana sayfa</a>
-            <a href="veriler.html">Veriler</a>
-        </nav>
-    </header>
+  <header>
+    <h1>Websitesi Deneme</h1>
+    <nav>
+      <a href="index.html">Ana sayfa</a>
+      <a href="veriler.html">Veriler</a>
+    </nav>
+  </header>
 
-    <section id="home">
-        <h2>Proje Bilgileri</h2>
-        <p>Otonom Araç Projesi.</p>
-    </section>
+  <section id="home">
+    <h2>Proje Bilgileri</h2>
+    <p>Otonom Araç Projesi.</p>
+  </section>
 
-    <!-- Kontrol Bölümü -->
-    <section id="control">
-        <h2>Raspberry Pi Kodunu Başlat</h2>
-        <button id="startBtn">Kod Başlat</button>
-    </section>
-    
-    <footer>
-    </footer>
+  <!-- Kod Başlatma Bölümü -->
+  <section id="control">
+    <h2>Raspberry Pi Kodunu Başlat</h2>
+    <button id="startBtn">Kod Başlat</button>
+  </section>
 
-    <script>
-      // "Kod Başlat" butonuna tıklanınca Raspberry Pi'deki kodu tetikleyen endpoint'i çağırır
-      const startBtn = document.getElementById('startBtn');
-      startBtn.addEventListener('click', async () => {
-        startBtn.disabled = true;
-        startBtn.textContent = 'Başlatılıyor…';
-        try {
-          // Raspberry Pi IP ve portunu kendi ortamınıza göre güncelleyin
-          const res = await fetch('http://192.168.1.42:5000/start');
-          if (!res.ok) throw new Error(res.statusText);
-          alert('Kod başarıyla başlatıldı!');
-        } catch (err) {
-          console.error('Başlatma hatası:', err);
-          alert('Başlatma hatası: ' + err.message);
-        } finally {
-          startBtn.disabled = false;
-          startBtn.textContent = 'Kod Başlat';
-        }
-      });
-    </script>
+  <footer></footer>
+
+  <script>
+    document.getElementById('startBtn').addEventListener('click', async () => {
+      const btn = document.getElementById('startBtn');
+      btn.disabled = true;
+      btn.textContent = 'Başlatılıyor…';
+      try {
+        // Buraya Raspberry Pi IP ve portunuzu yazın:
+        const res = await fetch('http://192.168.1.42:5000/start');
+        if (!res.ok) throw new Error(res.statusText);
+        alert('Kod başarıyla başlatıldı!');
+      } catch (err) {
+        console.error('Başlatma hatası:', err);
+        alert('Başlatma hatası: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Kod Başlat';
+      }
+    });
+  </script>
 </body>
 </html>
