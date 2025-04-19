@@ -1,51 +1,327 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="tr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Websitesi Deneme</title>
+  <title>Spektrum Verileri</title>
   <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+  <style>
+    .chart-container {
+      position: relative;
+      height: 300px;
+      margin-bottom: 20px;
+    }
+    .info-panel {
+      background-color: #f8f9fa;
+      border-radius: 5px;
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+    .control-panel {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    button {
+      background-color: #4CAF50;
+      border: none;
+      color: white;
+      padding: 10px 15px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin: 4px 2px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    button.stop {
+      background-color: #f44336;
+    }
+    button.stop:hover {
+      background-color: #d32f2f;
+    }
+    .status {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 5px;
+      background-color: #e7f3fe;
+      border-left: 6px solid #2196F3;
+    }
+  </style>
 </head>
 <body>
   <header>
-    <h1>Websitesi Deneme</h1>
+    <h1>Spektrum Verileri</h1>
     <nav>
       <a href="index.html">Ana sayfa</a>
       <a href="veriler.html">Veriler</a>
     </nav>
   </header>
-
-  <section id="home">
-    <h2>Proje Bilgileri</h2>
-    <p>Otonom Araç Projesi.</p>
+  
+  <section id="spectrum-data">
+    <h2>433 MHz Spektrum Analizi</h2>
+    
+    <div class="info-panel">
+      <h3>Sinyal Bilgileri</h3>
+      <div id="signal-info">Bağlantı bekleniyor... Önce ana sayfadan kodu başlatın.</div>
+    </div>
+    
+    <div class="chart-container">
+      <canvas id="spectrum-chart"></canvas>
+    </div>
+    
+    <div class="chart-container">
+      <canvas id="trend-chart"></canvas>
+    </div>
+    
+    <div class="control-panel">
+      <button id="refreshBtn">Verileri Yenile</button>
+      <button id="autoRefreshBtn">Otomatik Yenileme Başlat</button>
+      <button class="stop" id="stopBtn">Yenilemeyi Durdur</button>
+    </div>
+    
+    <div class="status" id="status">
+      Durum: Hazır
+    </div>
   </section>
-
-  <!-- Kod Başlatma Bölümü -->
-  <section id="control">
-    <h2>Raspberry Pi Kodunu Başlat</h2>
-    <button id="startBtn">Kod Başlat</button>
-  </section>
-
+  
   <footer></footer>
-
+  
   <script>
-    document.getElementById('startBtn').addEventListener('click', async () => {
-      const btn = document.getElementById('startBtn');
-      btn.disabled = true;
-      btn.textContent = 'Başlatılıyor…';
-      try {
-        // Buraya Raspberry Pi IP ve portunuzu yazın:
-        const res = await fetch('http://172.20.10.2:5000/start');
-        if (!res.ok) throw new Error(res.statusText);
-        alert('Kod başarıyla başlatıldı!');
-      } catch (err) {
-        console.error('Başlatma hatası:', err);
-        alert('Başlatma hatası: ' + err.message);
-      } finally {
-        btn.disabled = false;
-        btn.textContent = 'Kod Başlat';
-      }
+    // Global değişkenler
+    let spectrumChart;
+    let trendChart;
+    let updateInterval;
+    let isAutoRefreshing = false;
+    
+    // Raspberry Pi'nın IP adresi ve port numarası
+    const serverUrl = 'http://172.20.10.2:5000'; // Kendi Raspberry Pi IP adresinizle değiştirin
+    
+    // Sayfa yüklendiğinde çalışacak fonksiyon
+    document.addEventListener('DOMContentLoaded', function() {
+      initCharts();
+      setupEventListeners();
     });
+    
+    // Grafikleri başlat
+    function initCharts() {
+      // Spektrum grafiği
+      const spectrumCtx = document.getElementById('spectrum-chart').getContext('2d');
+      spectrumChart = new Chart(spectrumCtx, {
+        type: 'line',
+        data: {
+          labels: [],
+          datasets: [{
+            label: 'Güç Spektrumu (dB)',
+            data: [],
+            borderColor: 'rgb(255, 99, 132)',
+            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+            borderWidth: 1,
+            pointRadius: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: {
+            duration: 0
+          },
+          scales: {
+            y: {
+              title: {
+                display: true,
+                text: 'Güç (dB)'
+              }
+            },
+            x: {
+              title: {
+                display: true,
+                text: 'Frekans (MHz)'
+              }
+            }
+          },
+          plugins: {
+            title: {
+              display: true,
+              text: 'Spektrum Analizi'
+            }
+          }
+        }
+      });
+      
+      // Trend grafiği
+      const trendCtx = document.getElementById('trend-chart').getContext('2d');
+      trendChart = new Chart(trendCtx, {
+        type: 'line',
+        data: {
+          labels: [],
+          datasets: [{
+            label: 'Sinyal Gücü Trendi (dB)',
+            data: [],
+            borderColor: 'rgb(54, 162, 235)',
+            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+            borderWidth: 2,
+            tension: 0.1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: {
+            duration: 500
+          },
+          scales: {
+            y: {
+              title: {
+                display: true,
+                text: 'Sinyal Gücü (dB)'
+              }
+            },
+            x: {
+              title: {
+                display: true,
+                text: 'Ölçüm'
+              }
+            }
+          },
+          plugins: {
+            title: {
+              display: true,
+              text: 'Sinyal Gücü Trendi'
+            }
+          }
+        }
+      });
+    }
+    
+    // Düğme işlevlerini ayarla
+    function setupEventListeners() {
+      document.getElementById('refreshBtn').addEventListener('click', function() {
+        updateData();
+      });
+      
+      document.getElementById('autoRefreshBtn').addEventListener('click', function() {
+        if (!isAutoRefreshing) {
+          startAutoRefresh();
+        }
+      });
+      
+      document.getElementById('stopBtn').addEventListener('click', function() {
+        stopAutoRefresh();
+      });
+    }
+    
+    // Otomatik yenilemeyi başlat
+    function startAutoRefresh() {
+      if (isAutoRefreshing) return;
+      
+      isAutoRefreshing = true;
+      updateStatus('Otomatik yenileme başlatıldı (500ms)');
+      
+      // İlk veriyi hemen al
+      updateData();
+      
+      // Düzenli aralıklarla güncelleme yap (500ms)
+      updateInterval = setInterval(updateData, 500);
+      
+      // Düğme durumlarını güncelle
+      document.getElementById('autoRefreshBtn').disabled = true;
+      document.getElementById('refreshBtn').disabled = true;
+      document.getElementById('stopBtn').disabled = false;
+    }
+    
+    // Otomatik yenilemeyi durdur
+    function stopAutoRefresh() {
+      if (!isAutoRefreshing) return;
+      
+      isAutoRefreshing = false;
+      updateStatus('Otomatik yenileme durduruldu');
+      
+      // Zamanlayıcıyı temizle
+      clearInterval(updateInterval);
+      
+      // Düğme durumlarını güncelle
+      document.getElementById('autoRefreshBtn').disabled = false;
+      document.getElementById('refreshBtn').disabled = false;
+      document.getElementById('stopBtn').disabled = true;
+    }
+    
+    // Spektrum verilerini güncelle
+    async function updateData() {
+      try {
+        const response = await fetch(${serverUrl}/spectrum);
+        if (!response.ok) {
+          throw new Error(HTTP error! status: ${response.status});
+        }
+        
+        const data = await response.json();
+        
+        updateSpectrum(data);
+        updateTrend(data);
+        updateInfo(data);
+        
+        if (!isAutoRefreshing) {
+          updateStatus('Veriler manuel olarak güncellendi');
+        }
+      } catch (error) {
+        console.error('Veri güncellenirken hata oluştu:', error);
+        updateStatus('Bağlantı hatası: ' + error.message);
+        
+        // Otorefresh çalışıyorsa durdur
+        if (isAutoRefreshing) {
+          stopAutoRefresh();
+        }
+      }
+    }
+    
+    // Spektrum grafiğini güncelle
+    function updateSpectrum(data) {
+      // Grafiği güncelle
+      if (data.freq_range && data.power_spectrum) {
+        spectrumChart.data.labels = data.freq_range;
+        spectrumChart.data.datasets[0].data = data.power_spectrum;
+        spectrumChart.update();
+      }
+    }
+    
+    // Trend grafiğini güncelle
+    function updateTrend(data) {
+      if (data.signal_history) {
+        const labels = Array.from({length: data.signal_history.length}, (_, i) => i + 1);
+        trendChart.data.labels = labels;
+        trendChart.data.datasets[0].data = data.signal_history;
+        trendChart.update();
+      }
+    }
+    
+    // Sinyal bilgilerini güncelle
+    function updateInfo(data) {
+      const infoElement = document.getElementById('signal-info');
+      infoElement.innerHTML = `
+        <p><strong>Tepe Frekansı:</strong> ${data.peak_freq.toFixed(3)} MHz</p>
+        <p><strong>Tepe Gücü:</strong> ${data.peak_power.toFixed(2)} dB</p>
+        <p><strong>Ortalama Güç:</strong> ${data.avg_power.toFixed(2)} dB</p>
+        <p><strong>Son Ölçüm:</strong> ${new Date().toLocaleTimeString()}</p>
+      `;
+    }
+    
+    // Durum mesajını güncelle
+    function updateStatus(message) {
+      const statusElement = document.getElementById('status');
+      statusElement.textContent = 'Durum: ' + message;
+      // Hata mesajları için kırmızı, normal mesajlar için mavi
+      if (message.includes('hata')) {
+        statusElement.style.borderLeft = '6px solid #f44336';
+      } else {
+        statusElement.style.borderLeft = '6px solid #2196F3';
+      }
+    }
   </script>
 </body>
 </html>
