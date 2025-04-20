@@ -94,7 +94,6 @@
   <footer></footer>
   
   <script>
-    // DOM elements
     const startBtn = document.getElementById('startBtn');
     const stopBtn = document.getElementById('stopBtn');
     const spectrumImage = document.getElementById('spectrumImage');
@@ -103,24 +102,19 @@
     const avgPowerEl = document.getElementById('avgPower');
     const statusMessage = document.getElementById('statusMessage');
     
-    // Server URL - Kesinlikle HTTP kullanın
     const serverUrl = 'http://172.20.10.2:5000';
-    
-    // Flag to track if updates are running
     let updatingSpectrum = false;
     
-    // Function to display status messages
     function showStatus(message, isError = false) {
       statusMessage.textContent = message;
       statusMessage.style.color = isError ? 'red' : 'green';
       statusMessage.style.padding = '10px';
       statusMessage.style.marginTop = '10px';
       statusMessage.style.backgroundColor = isError ? '#ffeeee' : '#eeffee';
-      statusMessage.style.border = 1px solid ${isError ? '#ffcccc' : '#ccffcc'};
+      statusMessage.style.border = isError ? '1px solid #ffcccc' : '1px solid #ccffcc';
       statusMessage.style.borderRadius = '4px';
     }
     
-    // Function to start the code
     async function startCode() {
       startBtn.disabled = true;
       startBtn.textContent = 'Başlatılıyor…';
@@ -143,7 +137,6 @@
         const data = await res.json();
         console.log('Start response:', data);
         
-        // Start updating spectrum data
         showStatus('Kod başlatıldı, spektrum verisi alınıyor...');
         startSpectrumUpdates();
       } catch (err) {
@@ -155,7 +148,6 @@
       }
     }
     
-    // Function to stop the code
     async function stopCode() {
       stopBtn.disabled = true;
       stopBtn.textContent = 'Durduruluyor…';
@@ -176,7 +168,6 @@
         const data = await res.json();
         console.log('Stop response:', data);
         
-        // Stop updating spectrum data
         stopSpectrumUpdates();
         showStatus('Kod durduruldu');
       } catch (err) {
@@ -188,17 +179,14 @@
       }
     }
     
-    // Function to start spectrum updates
     function startSpectrumUpdates() {
       if (!updatingSpectrum) {
         updatingSpectrum = true;
         updateSpectrumData();
-        // Update spectrum image every second
         window.spectrumInterval = setInterval(updateSpectrumImage, 1000);
       }
     }
     
-    // Function to stop spectrum updates
     function stopSpectrumUpdates() {
       updatingSpectrum = false;
       if (window.spectrumInterval) {
@@ -207,7 +195,6 @@
       }
     }
     
-    // Function to update spectrum data
     async function updateSpectrumData() {
       if (!updatingSpectrum) return;
       
@@ -227,46 +214,35 @@
         const data = await res.json();
         console.log('Spectrum data:', data);
         
-        // Update info display
         peakFreqEl.textContent = data.peak_freq.toFixed(3);
         peakPowerEl.textContent = data.peak_power.toFixed(2);
         avgPowerEl.textContent = data.avg_power.toFixed(2);
         
-        // Continue updating if still active
         if (updatingSpectrum) {
           setTimeout(updateSpectrumData, 500);
         }
       } catch (err) {
         console.error('Spektrum veri hatası:', err);
-        // Retry after a delay
         if (updatingSpectrum) {
           setTimeout(updateSpectrumData, 2000);
         }
       }
     }
     
-    // Function to update spectrum image
     function updateSpectrumImage() {
       if (!updatingSpectrum) return;
-      
-      // Use a timestamp to prevent caching
       const timestamp = new Date().getTime();
       spectrumImage.src = ${serverUrl}/spectrum_image?t=${timestamp};
-      
-      // Handle image load errors
       spectrumImage.onerror = () => {
         console.error('Failed to load spectrum image');
-        spectrumImage.src = ''; // Clear on error
+        spectrumImage.src = '';
       };
     }
     
-    // Event listeners
     startBtn.addEventListener('click', startCode);
     stopBtn.addEventListener('click', stopCode);
     
-    // Initialize the page
     window.addEventListener('load', () => {
-      // Clear any previous image
       spectrumImage.src = '';
       showStatus('Hazır. Başlatmak için "Kod Başlat" düğmesine tıklayın.');
     });
