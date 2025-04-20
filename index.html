@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
   <title>Websitesi Deneme</title>
   <link rel="stylesheet" href="style.css">
   <style>
@@ -74,6 +75,7 @@
       <button id="startBtn">Kod Başlat</button>
       <button id="stopBtn" class="button-stop">Kod Durdur</button>
     </div>
+    <div id="statusMessage"></div>
   </section>
   
   <!-- Spektrum Görüntüleme Bölümü -->
@@ -99,12 +101,24 @@
     const peakFreqEl = document.getElementById('peakFreq');
     const peakPowerEl = document.getElementById('peakPower');
     const avgPowerEl = document.getElementById('avgPower');
+    const statusMessage = document.getElementById('statusMessage');
     
-    // Server URL
+    // Server URL - Kesinlikle HTTP kullanın
     const serverUrl = 'http://172.20.10.2:5000';
     
     // Flag to track if updates are running
     let updatingSpectrum = false;
+    
+    // Function to display status messages
+    function showStatus(message, isError = false) {
+      statusMessage.textContent = message;
+      statusMessage.style.color = isError ? 'red' : 'green';
+      statusMessage.style.padding = '10px';
+      statusMessage.style.marginTop = '10px';
+      statusMessage.style.backgroundColor = isError ? '#ffeeee' : '#eeffee';
+      statusMessage.style.border = 1px solid ${isError ? '#ffcccc' : '#ccffcc'};
+      statusMessage.style.borderRadius = '4px';
+    }
     
     // Function to start the code
     async function startCode() {
@@ -112,19 +126,29 @@
       startBtn.textContent = 'Başlatılıyor…';
       
       try {
-        const res = await fetch(${serverUrl}/start);
-        if (!res.ok) throw new Error(res.statusText);
+        showStatus('Raspberry Pi\'ye bağlanılıyor...');
+        
+        const res = await fetch(${serverUrl}/start, {
+          method: 'GET',
+          mode: 'cors',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (!res.ok) {
+          throw new Error(HTTP hata: ${res.status});
+        }
         
         const data = await res.json();
         console.log('Start response:', data);
         
         // Start updating spectrum data
+        showStatus('Kod başlatıldı, spektrum verisi alınıyor...');
         startSpectrumUpdates();
-        
-        alert('Kod başarıyla başlatıldı!');
       } catch (err) {
         console.error('Başlatma hatası:', err);
-        alert('Başlatma hatası: ' + err.message);
+        showStatus(Başlatma hatası: ${err.message}, true);
       } finally {
         startBtn.disabled = false;
         startBtn.textContent = 'Kod Başlat';
@@ -137,19 +161,27 @@
       stopBtn.textContent = 'Durduruluyor…';
       
       try {
-        const res = await fetch(${serverUrl}/stop);
-        if (!res.ok) throw new Error(res.statusText);
+        const res = await fetch(${serverUrl}/stop, {
+          method: 'GET',
+          mode: 'cors',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (!res.ok) {
+          throw new Error(HTTP hata: ${res.status});
+        }
         
         const data = await res.json();
         console.log('Stop response:', data);
         
         // Stop updating spectrum data
         stopSpectrumUpdates();
-        
-        alert('Kod başarıyla durduruldu!');
+        showStatus('Kod durduruldu');
       } catch (err) {
         console.error('Durdurma hatası:', err);
-        alert('Durdurma hatası: ' + err.message);
+        showStatus(Durdurma hatası: ${err.message}, true);
       } finally {
         stopBtn.disabled = false;
         stopBtn.textContent = 'Kod Durdur';
@@ -180,8 +212,17 @@
       if (!updatingSpectrum) return;
       
       try {
-        const res = await fetch(${serverUrl}/spectrum_data);
-        if (!res.ok) throw new Error(res.statusText);
+        const res = await fetch(${serverUrl}/spectrum_data, {
+          method: 'GET',
+          mode: 'cors',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (!res.ok) {
+          throw new Error(HTTP hata: ${res.status});
+        }
         
         const data = await res.json();
         console.log('Spectrum data:', data);
@@ -227,6 +268,7 @@
     window.addEventListener('load', () => {
       // Clear any previous image
       spectrumImage.src = '';
+      showStatus('Hazır. Başlatmak için "Kod Başlat" düğmesine tıklayın.');
     });
   </script>
 </body>
