@@ -1,63 +1,43 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
-  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Otonom Araç Projesi</title>
+  <title>Websitesi Deneme</title>
+  <link rel="stylesheet" href="style.css">
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: #f5f5f5;
+    #spectrumContainer {
+      margin: 20px 0;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      background-color: #f9f9f9;
     }
-    header {
-      background-color: #333;
-      color: white;
-      padding: 1rem;
-      text-align: center;
+    #spectrumInfo {
+      margin-top: 10px;
+      font-family: monospace;
+      background-color: #eee;
+      padding: 10px;
+      border-radius: 5px;
     }
-    nav {
-      margin-top: 1rem;
+    #spectrumImage {
+      max-width: 100%;
+      height: auto;
+      border: 1px solid #ccc;
     }
-    nav a {
-      color: white;
-      margin: 0 1rem;
-      text-decoration: none;
-      font-weight: bold;
-    }
-    nav a:hover {
-      text-decoration: underline;
-    }
-    section {
-      max-width: 1200px;
-      margin: 2rem auto;
-      padding: 1rem;
-      background-color: white;
-      border-radius: 8px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    h2 {
-      color: #333;
-      border-bottom: 1px solid #eee;
-      padding-bottom: 0.5rem;
-    }
-    #home p {
-      line-height: 1.6;
+    .controls {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
     }
     button {
-      background-color: #4CAF50;
-      border: none;
-      color: white;
       padding: 10px 15px;
-      text-align: center;
-      text-decoration: none;
-      display: inline-block;
-      font-size: 16px;
-      margin: 10px 0;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
       cursor: pointer;
-      border-radius: 5px;
+      transition: background-color 0.3s;
     }
     button:hover {
       background-color: #45a049;
@@ -66,369 +46,188 @@
       background-color: #cccccc;
       cursor: not-allowed;
     }
-    .status {
-      margin-top: 10px;
-      padding: 10px;
-      border-radius: 5px;
-      background-color: #e7f3fe;
-      border-left: 6px solid #2196F3;
+    .button-stop {
+      background-color: #f44336;
     }
-    .chart-container {
-      position: relative;
-      height: 300px;
-      margin-bottom: 20px;
-    }
-    .info-panel {
-      background-color: #f8f9fa;
-      border-radius: 5px;
-      padding: 15px;
-      margin-bottom: 20px;
-    }
-    footer {
-      text-align: center;
-      padding: 1rem;
-      background-color: #333;
-      color: white;
-      margin-top: 2rem;
+    .button-stop:hover {
+      background-color: #d32f2f;
     }
   </style>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
 </head>
 <body>
   <header>
-    <h1>Otonom Araç Projesi</h1>
+    <h1>Websitesi Deneme</h1>
     <nav>
-      <a href="#home">Ana sayfa</a>
-      <a href="#spectrum">Spektrum Verileri</a>
-      <a href="#control">Kontrol</a>
+      <a href="index.html">Ana sayfa</a>
+      <a href="veriler.html">Veriler</a>
     </nav>
   </header>
-
   <section id="home">
     <h2>Proje Bilgileri</h2>
-    <p>Otonom Araç Projesi, 433 MHz bandını kullanarak sinyal kaynaklarını tespit eden ve bu kaynaklara doğru hareket edebilen bir robotu içermektedir. Bu projede Raspberry Pi, RTL-SDR ve çeşitli sensörler kullanılmıştır.</p>
-    <p>Bu web arayüzü, robotu kontrol etmenizi ve canlı spektrum analizlerini görüntülemenizi sağlar.</p>
+    <p>Otonom Araç Projesi.</p>
   </section>
-
+  
   <!-- Kod Başlatma Bölümü -->
   <section id="control">
-    <h2>Raspberry Pi Kodunu Başlat</h2>
-    <p>Sistemi başlatmak için aşağıdaki düğmeye tıklayın. Bu, hem jiroskop kodunu hem de spektrum analizörünü başlatacaktır.</p>
-    <button id="startBtn">Kod Başlat</button>
-    <button id="stopBtn" class="stop" disabled>Durdur</button>
-    <div id="statusMsg" class="status">Durum: Hazır</div>
-  </section>
-
-  <!-- Spektrum Analizi Bölümü -->
-  <section id="spectrum">
-    <h2>433 MHz Spektrum Analizi</h2>
-    
-    <div class="info-panel">
-      <h3>Sinyal Bilgileri</h3>
-      <div id="signal-info">Bağlantı bekleniyor... Önce "Kod Başlat" düğmesine tıklayın.</div>
-    </div>
-    
-    <div class="chart-container">
-      <canvas id="spectrum-chart"></canvas>
-    </div>
-    
-    <div class="chart-container">
-      <canvas id="trend-chart"></canvas>
-    </div>
-    
-    <div class="control-panel">
-      <button id="refreshBtn">Verileri Yenile</button>
-      <button id="autoRefreshBtn">Otomatik Yenileme Başlat</button>
-      <button id="stopRefreshBtn" class="stop" disabled>Yenilemeyi Durdur</button>
+    <h2>Raspberry Pi Kontrolü</h2>
+    <div class="controls">
+      <button id="startBtn">Kod Başlat</button>
+      <button id="stopBtn" class="button-stop">Kod Durdur</button>
     </div>
   </section>
-
-  <footer>
-    <p>&copy; 2025 Otonom Araç Projesi</p>
-  </footer>
-
+  
+  <!-- Spektrum Görüntüleme Bölümü -->
+  <section id="spectrumContainer">
+    <h2>Spektrum Analizi</h2>
+    <div id="spectrumDisplay">
+      <img id="spectrumImage" src="" alt="Spektrum analizi görüntüsü" />
+      <div id="spectrumInfo">
+        <p>Tepe Frekansı: <span id="peakFreq">-</span> MHz</p>
+        <p>Tepe Gücü: <span id="peakPower">-</span> dB</p>
+        <p>Ortalama Güç: <span id="avgPower">-</span> dB</p>
+      </div>
+    </div>
+  </section>
+  
+  <footer></footer>
+  
   <script>
-    // Raspberry Pi bağlantı bilgileri
-    const serverUrl = 'http://172.20.10.2:5000'; // Kendi Raspberry Pi IP adresinizle değiştirin
+    // DOM elements
+    const startBtn = document.getElementById('startBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const spectrumImage = document.getElementById('spectrumImage');
+    const peakFreqEl = document.getElementById('peakFreq');
+    const peakPowerEl = document.getElementById('peakPower');
+    const avgPowerEl = document.getElementById('avgPower');
     
-    // Global değişkenler
-    let spectrumChart;
-    let trendChart;
-    let updateInterval;
-    let isAutoRefreshing = false;
-    let isSystemRunning = false;
+    // Server URL
+    const serverUrl = 'http://172.20.10.2:5000';
     
-    // Sayfa yüklendiğinde çalışacak fonksiyon
-    document.addEventListener('DOMContentLoaded', function() {
-      initCharts();
-      setupEventListeners();
-    });
+    // Flag to track if updates are running
+    let updatingSpectrum = false;
     
-    // Olay dinleyicilerini ayarla
-    function setupEventListeners() {
-      // Kod başlatma ve durdurma düğmeleri
-      document.getElementById('startBtn').addEventListener('click', startSystem);
-      document.getElementById('stopBtn').addEventListener('click', stopSystem);
-      
-      // Spektrum verileri için düğmeler
-      document.getElementById('refreshBtn').addEventListener('click', updateData);
-      document.getElementById('autoRefreshBtn').addEventListener('click', startAutoRefresh);
-      document.getElementById('stopRefreshBtn').addEventListener('click', stopAutoRefresh);
-    }
-    
-    // Sistemi başlat
-    async function startSystem() {
-      const startBtn = document.getElementById('startBtn');
-      const stopBtn = document.getElementById('stopBtn');
-      const statusMsg = document.getElementById('statusMsg');
-      
+    // Function to start the code
+    async function startCode() {
       startBtn.disabled = true;
       startBtn.textContent = 'Başlatılıyor…';
-      statusMsg.textContent = 'Durum: Başlatılıyor...';
       
       try {
-        const res = await fetch(serverUrl + '/start');
+        const res = await fetch(${serverUrl}/start);
         if (!res.ok) throw new Error(res.statusText);
         
         const data = await res.json();
-        isSystemRunning = true;
+        console.log('Start response:', data);
         
-        statusMsg.textContent = 'Durum: Sistem başarıyla başlatıldı!';
-        startBtn.textContent = 'Kod Başlatıldı';
-        stopBtn.disabled = false;
+        // Start updating spectrum data
+        startSpectrumUpdates();
         
-        // Spektrum verilerini otomatik olarak güncellemeye başla
-        startAutoRefresh();
+        alert('Kod başarıyla başlatıldı!');
       } catch (err) {
         console.error('Başlatma hatası:', err);
-        statusMsg.textContent = 'Durum: Başlatma hatası: ' + err.message;
-        statusMsg.style.borderLeft = '6px solid #f44336';
-        startBtn.textContent = 'Kod Başlat';
+        alert('Başlatma hatası: ' + err.message);
+      } finally {
         startBtn.disabled = false;
+        startBtn.textContent = 'Kod Başlat';
       }
     }
     
-    // Sistemi durdur
-    async function stopSystem() {
-      const startBtn = document.getElementById('startBtn');
-      const stopBtn = document.getElementById('stopBtn');
-      const statusMsg = document.getElementById('statusMsg');
-      
+    // Function to stop the code
+    async function stopCode() {
       stopBtn.disabled = true;
-      statusMsg.textContent = 'Durum: Durduruluyor...';
+      stopBtn.textContent = 'Durduruluyor…';
       
       try {
-        const res = await fetch(serverUrl + '/stop');
+        const res = await fetch(${serverUrl}/stop);
         if (!res.ok) throw new Error(res.statusText);
         
-        isSystemRunning = false;
-        statusMsg.textContent = 'Durum: Sistem durduruldu.';
-        startBtn.textContent = 'Kod Başlat';
-        startBtn.disabled = false;
+        const data = await res.json();
+        console.log('Stop response:', data);
         
-        // Spektrum verilerini güncellemeyi durdur
-        stopAutoRefresh();
+        // Stop updating spectrum data
+        stopSpectrumUpdates();
+        
+        alert('Kod başarıyla durduruldu!');
       } catch (err) {
         console.error('Durdurma hatası:', err);
-        statusMsg.textContent = 'Durum: Durdurma hatası: ' + err.message;
-        statusMsg.style.borderLeft = '6px solid #f44336';
+        alert('Durdurma hatası: ' + err.message);
+      } finally {
         stopBtn.disabled = false;
+        stopBtn.textContent = 'Kod Durdur';
       }
     }
     
-    // Grafikleri başlat
-    function initCharts() {
-      // Spektrum grafiği
-      const spectrumCtx = document.getElementById('spectrum-chart').getContext('2d');
-      spectrumChart = new Chart(spectrumCtx, {
-        type: 'line',
-        data: {
-          labels: [],
-          datasets: [{
-            label: 'Güç Spektrumu (dB)',
-            data: [],
-            borderColor: 'rgb(255, 99, 132)',
-            backgroundColor: 'rgba(255, 99, 132, 0.2)',
-            borderWidth: 1,
-            pointRadius: 0
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          animation: {
-            duration: 0
-          },
-          scales: {
-            y: {
-              title: {
-                display: true,
-                text: 'Güç (dB)'
-              }
-            },
-            x: {
-              title: {
-                display: true,
-                text: 'Frekans (MHz)'
-              }
-            }
-          },
-          plugins: {
-            title: {
-              display: true,
-              text: 'Spektrum Analizi'
-            }
-          }
-        }
-      });
-      
-      // Trend grafiği
-      const trendCtx = document.getElementById('trend-chart').getContext('2d');
-      trendChart = new Chart(trendCtx, {
-        type: 'line',
-        data: {
-          labels: [],
-          datasets: [{
-            label: 'Sinyal Gücü Trendi (dB)',
-            data: [],
-            borderColor: 'rgb(54, 162, 235)',
-            backgroundColor: 'rgba(54, 162, 235, 0.2)',
-            borderWidth: 2,
-            tension: 0.1
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          animation: {
-            duration: 500
-          },
-          scales: {
-            y: {
-              title: {
-                display: true,
-                text: 'Sinyal Gücü (dB)'
-              }
-            },
-            x: {
-              title: {
-                display: true,
-                text: 'Ölçüm'
-              }
-            }
-          },
-          plugins: {
-            title: {
-              display: true,
-              text: 'Sinyal Gücü Trendi'
-            }
-          }
-        }
-      });
+    // Function to start spectrum updates
+    function startSpectrumUpdates() {
+      if (!updatingSpectrum) {
+        updatingSpectrum = true;
+        updateSpectrumData();
+        // Update spectrum image every second
+        window.spectrumInterval = setInterval(updateSpectrumImage, 1000);
+      }
     }
     
-    // Otomatik yenilemeyi başlat
-    function startAutoRefresh() {
-      if (isAutoRefreshing) return;
-      
-      isAutoRefreshing = true;
-      updateStatus('Otomatik yenileme başlatıldı (500ms)');
-      
-      // İlk veriyi hemen al
-      updateData();
-      
-      // Düzenli aralıklarla güncelleme yap (500ms)
-      updateInterval = setInterval(updateData, 500);
-      
-      // Düğme durumlarını güncelle
-      document.getElementById('autoRefreshBtn').disabled = true;
-      document.getElementById('stopRefreshBtn').disabled = false;
+    // Function to stop spectrum updates
+    function stopSpectrumUpdates() {
+      updatingSpectrum = false;
+      if (window.spectrumInterval) {
+        clearInterval(window.spectrumInterval);
+        window.spectrumInterval = null;
+      }
     }
     
-    // Otomatik yenilemeyi durdur
-    function stopAutoRefresh() {
-      if (!isAutoRefreshing) return;
+    // Function to update spectrum data
+    async function updateSpectrumData() {
+      if (!updatingSpectrum) return;
       
-      isAutoRefreshing = false;
-      updateStatus('Otomatik yenileme durduruldu');
-      
-      // Zamanlayıcıyı temizle
-      clearInterval(updateInterval);
-      
-      // Düğme durumlarını güncelle
-      document.getElementById('autoRefreshBtn').disabled = false;
-      document.getElementById('stopRefreshBtn').disabled = true;
-    }
-    
-    // Spektrum verilerini güncelle
-    async function updateData() {
       try {
-        const response = await fetch(serverUrl + '/spectrum');
-        if (!response.ok) {
-          throw new Error("HTTP error! status: " + response.status);
+        const res = await fetch(${serverUrl}/spectrum_data);
+        if (!res.ok) throw new Error(res.statusText);
+        
+        const data = await res.json();
+        console.log('Spectrum data:', data);
+        
+        // Update info display
+        peakFreqEl.textContent = data.peak_freq.toFixed(3);
+        peakPowerEl.textContent = data.peak_power.toFixed(2);
+        avgPowerEl.textContent = data.avg_power.toFixed(2);
+        
+        // Continue updating if still active
+        if (updatingSpectrum) {
+          setTimeout(updateSpectrumData, 500);
         }
-        
-        const data = await response.json();
-        
-        updateSpectrum(data);
-        updateTrend(data);
-        updateInfo(data);
-        
-        if (!isAutoRefreshing) {
-          updateStatus('Veriler manuel olarak güncellendi');
-        }
-      } catch (error) {
-        console.error('Veri güncellenirken hata oluştu:', error);
-        updateStatus('Bağlantı hatası: ' + error.message);
-        
-        // Otorefresh çalışıyorsa durdur
-        if (isAutoRefreshing) {
-          stopAutoRefresh();
+      } catch (err) {
+        console.error('Spektrum veri hatası:', err);
+        // Retry after a delay
+        if (updatingSpectrum) {
+          setTimeout(updateSpectrumData, 2000);
         }
       }
     }
     
-    // Spektrum grafiğini güncelle
-    function updateSpectrum(data) {
-      // Grafiği güncelle
-      if (data.freq_range && data.power_spectrum) {
-        spectrumChart.data.labels = data.freq_range;
-        spectrumChart.data.datasets[0].data = data.power_spectrum;
-        spectrumChart.update();
-      }
+    // Function to update spectrum image
+    function updateSpectrumImage() {
+      if (!updatingSpectrum) return;
+      
+      // Use a timestamp to prevent caching
+      const timestamp = new Date().getTime();
+      spectrumImage.src = ${serverUrl}/spectrum_image?t=${timestamp};
+      
+      // Handle image load errors
+      spectrumImage.onerror = () => {
+        console.error('Failed to load spectrum image');
+        spectrumImage.src = ''; // Clear on error
+      };
     }
     
-    // Trend grafiğini güncelle
-    function updateTrend(data) {
-      if (data.signal_history) {
-        const labels = Array.from({length: data.signal_history.length}, (_, i) => i + 1);
-        trendChart.data.labels = labels;
-        trendChart.data.datasets[0].data = data.signal_history;
-        trendChart.update();
-      }
-    }
+    // Event listeners
+    startBtn.addEventListener('click', startCode);
+    stopBtn.addEventListener('click', stopCode);
     
-    // Sinyal bilgilerini güncelle
-    function updateInfo(data) {
-      const infoElement = document.getElementById('signal-info');
-      infoElement.innerHTML = 
-        "<p><strong>Tepe Frekansı:</strong> " + data.peak_freq.toFixed(3) + " MHz</p>" +
-        "<p><strong>Tepe Gücü:</strong> " + data.peak_power.toFixed(2) + " dB</p>" +
-        "<p><strong>Ortalama Güç:</strong> " + data.avg_power.toFixed(2) + " dB</p>" +
-        "<p><strong>Son Ölçüm:</strong> " + new Date().toLocaleTimeString() + "</p>";
-    }
-    
-    // Durum mesajını güncelle
-    function updateStatus(message) {
-      const statusElement = document.getElementById('statusMsg');
-      statusElement.textContent = 'Durum: ' + message;
-      // Hata mesajları için kırmızı, normal mesajlar için mavi
-      if (message.includes('hata')) {
-        statusElement.style.borderLeft = '6px solid #f44336';
-      } else {
-        statusElement.style.borderLeft = '6px solid #2196F3';
-      }
-    }
+    // Initialize the page
+    window.addEventListener('load', () => {
+      // Clear any previous image
+      spectrumImage.src = '';
+    });
   </script>
 </body>
 </html>
