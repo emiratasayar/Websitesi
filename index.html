@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
-  <title>Websitesi Deneme</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests" />
+  <title>Project Interface</title>
   <style>
     #spectrumContainer {
       margin: 20px 0;
@@ -57,128 +56,123 @@
 </head>
 <body>
   <header>
-    <h1>Websitesi Deneme</h1>
+    <h1>Autonomous Vehicle Web Interface</h1>
     <nav>
-      <a href="index.html">Ana sayfa</a>
-      <a href="veriler.html">Veriler</a>
+      <a href="index.html">Home</a>
+      <a href="veriler.html">Data</a>
     </nav>
   </header>
+
   <section id="home">
-    <h2>Proje Bilgileri</h2>
-    <p>Otonom Araç Projesi.</p>
+    <h2>Project Overview</h2>
+    <p>This project monitors an autonomous vehicle system and its spectrum data.</p>
   </section>
-  
-  <!-- Kod Başlatma Bölümü -->
+
   <section id="control">
-    <h2>Raspberry Pi Kontrolü</h2>
+    <h2>Raspberry Pi Control</h2>
     <div class="controls">
-      <button id="startBtn">Kod Başlat</button>
-      <button id="stopBtn" class="button-stop">Kod Durdur</button>
+      <button id="startBtn">Start Code</button>
+      <button id="stopBtn" class="button-stop">Stop Code</button>
     </div>
     <div id="statusMessage"></div>
   </section>
-  
-  <!-- Spektrum Görüntüleme Bölümü -->
+
   <section id="spectrumContainer">
-    <h2>Spektrum Analizi</h2>
+    <h2>Spectrum Analysis</h2>
     <div id="spectrumDisplay">
-      <img id="spectrumImage" src="" alt="Spektrum analizi görüntüsü" />
+      <img id="spectrumImage" src="" alt="Spectrum display" />
       <div id="spectrumInfo">
-        <p>Tepe Frekansı: <span id="peakFreq">-</span> MHz</p>
-        <p>Tepe Gücü: <span id="peakPower">-</span> dB</p>
-        <p>Ortalama Güç: <span id="avgPower">-</span> dB</p>
+        <p>Peak Frequency: <span id="peakFreq">-</span> MHz</p>
+        <p>Peak Power: <span id="peakPower">-</span> dB</p>
+        <p>Average Power: <span id="avgPower">-</span> dB</p>
       </div>
     </div>
   </section>
-  
+
   <footer></footer>
-  
+
   <script>
-    const startBtn = document.getElementById('startBtn');
-    const stopBtn = document.getElementById('stopBtn');
-    const spectrumImage = document.getElementById('spectrumImage');
-    const peakFreqEl = document.getElementById('peakFreq');
-    const peakPowerEl = document.getElementById('peakPower');
-    const avgPowerEl = document.getElementById('avgPower');
-    const statusMessage = document.getElementById('statusMessage');
-    
-    const serverUrl = 'http://172.20.10.2:5000';
+    const startBtn = document.getElementById("startBtn");
+    const stopBtn = document.getElementById("stopBtn");
+    const spectrumImage = document.getElementById("spectrumImage");
+    const peakFreqEl = document.getElementById("peakFreq");
+    const peakPowerEl = document.getElementById("peakPower");
+    const avgPowerEl = document.getElementById("avgPower");
+    const statusMessage = document.getElementById("statusMessage");
+
+    const serverUrl = "http://172.20.10.2:5000";
     let updatingSpectrum = false;
-    
+
     function showStatus(message, isError = false) {
       statusMessage.textContent = message;
-      statusMessage.style.color = isError ? 'red' : 'green';
-      statusMessage.style.padding = '10px';
-      statusMessage.style.marginTop = '10px';
-      statusMessage.style.backgroundColor = isError ? '#ffeeee' : '#eeffee';
-      statusMessage.style.border = isError ? '1px solid #ffcccc' : '1px solid #ccffcc';
-      statusMessage.style.borderRadius = '4px';
+      statusMessage.style.color = isError ? "red" : "green";
+      statusMessage.style.padding = "10px";
+      statusMessage.style.marginTop = "10px";
+      statusMessage.style.backgroundColor = isError ? "#ffeeee" : "#eeffee";
+      statusMessage.style.border = isError
+        ? "1px solid #ffcccc"
+        : "1px solid #ccffcc";
+      statusMessage.style.borderRadius = "4px";
     }
-    
+
     async function startCode() {
       startBtn.disabled = true;
-      startBtn.textContent = 'Başlatılıyor…';
-      
+      startBtn.textContent = "Starting...";
+
       try {
-        showStatus('Raspberry Pi\'ye bağlanılıyor...');
-        
+        showStatus("Connecting to Raspberry Pi...");
+
         const res = await fetch(${serverUrl}/start, {
-          method: 'GET',
-          mode: 'cors',
+          method: "GET",
+          mode: "cors",
           headers: {
-            'Content-Type': 'application/json'
-          }
+            "Content-Type": "application/json",
+          },
         });
-        
-        if (!res.ok) {
-          throw new Error(HTTP hata: ${res.status});
-        }
-        
+
+        if (!res.ok) throw new Error(HTTP error: ${res.status});
         const data = await res.json();
-        console.log('Start response:', data);
-        
-        showStatus('Kod başlatıldı, spektrum verisi alınıyor...');
+        console.log("Start response:", data);
+
+        showStatus("Code started. Receiving spectrum data...");
         startSpectrumUpdates();
       } catch (err) {
-        console.error('Başlatma hatası:', err);
-        showStatus(Başlatma hatası: ${err.message}, true);
+        console.error("Start error:", err);
+        showStatus(Start error: ${err.message}, true);
       } finally {
         startBtn.disabled = false;
-        startBtn.textContent = 'Kod Başlat';
+        startBtn.textContent = "Start Code";
       }
     }
-    
+
     async function stopCode() {
       stopBtn.disabled = true;
-      stopBtn.textContent = 'Durduruluyor…';
-      
+      stopBtn.textContent = "Stopping...";
+
       try {
         const res = await fetch(${serverUrl}/stop, {
-          method: 'GET',
-          mode: 'cors',
+          method: "GET",
+          mode: "cors",
           headers: {
-            'Content-Type': 'application/json'
-          }
+            "Content-Type": "application/json",
+          },
         });
-        
-        if (!res.ok) {
-          throw new Error(HTTP hata: ${res.status});
-        }
-        
+
+        if (!res.ok) throw new Error(HTTP error: ${res.status});
         const data = await res.json();
-        console.log('Stop response:', data);
-        
+        console.log("Stop response:", data);
+
         stopSpectrumUpdates();
-        showStatus('Kod durduruldu');
+        showStatus("Code stopped.");
       } catch (err) {
-        console.error('Durdurma hatası:', err);
-        showStatus(Durdurma hatası: ${err.message}, true);
+        console.error("Stop error:", err);
+        showStatus(Stop error: ${err.message}, true);
       } finally {
         stopBtn.disabled = false;
-        stopBtn.textContent = 'Kod Durdur';
+        stopBtn.textContent = "Stop Code";
       }
     }
-    
+
     function startSpectrumUpdates() {
       if (!updatingSpectrum) {
         updatingSpectrum = true;
@@ -186,7 +180,7 @@
         window.spectrumInterval = setInterval(updateSpectrumImage, 1000);
       }
     }
-    
+
     function stopSpectrumUpdates() {
       updatingSpectrum = false;
       if (window.spectrumInterval) {
@@ -194,57 +188,62 @@
         window.spectrumInterval = null;
       }
     }
-    
+
     async function updateSpectrumData() {
       if (!updatingSpectrum) return;
-      
+
       try {
         const res = await fetch(${serverUrl}/spectrum_data, {
-          method: 'GET',
-          mode: 'cors',
+          method: "GET",
+          mode: "cors",
           headers: {
-            'Content-Type': 'application/json'
-          }
+            "Content-Type": "application/json",
+          },
         });
-        
-        if (!res.ok) {
-          throw new Error(HTTP hata: ${res.status});
+
+        const text = await res.text();
+        console.log("Raw spectrum data:", text);
+
+        let data;
+        try {
+          data = JSON.parse(text);
+        } catch (jsonErr) {
+          console.error("JSON parsing error:", jsonErr.message);
+          showStatus("Unable to parse data (JSON error)", true);
+          return;
         }
-        
-        const data = await res.json();
-        console.log('Spectrum data:', data);
-        
+
         peakFreqEl.textContent = data.peak_freq.toFixed(3);
         peakPowerEl.textContent = data.peak_power.toFixed(2);
         avgPowerEl.textContent = data.avg_power.toFixed(2);
-        
+
         if (updatingSpectrum) {
           setTimeout(updateSpectrumData, 500);
         }
       } catch (err) {
-        console.error('Spektrum veri hatası:', err);
+        console.error("Spectrum data error:", err);
         if (updatingSpectrum) {
           setTimeout(updateSpectrumData, 2000);
         }
       }
     }
-    
+
     function updateSpectrumImage() {
       if (!updatingSpectrum) return;
       const timestamp = new Date().getTime();
       spectrumImage.src = ${serverUrl}/spectrum_image?t=${timestamp};
       spectrumImage.onerror = () => {
-        console.error('Failed to load spectrum image');
-        spectrumImage.src = '';
+        console.error("Failed to load spectrum image");
+        spectrumImage.src = "";
       };
     }
-    
-    startBtn.addEventListener('click', startCode);
-    stopBtn.addEventListener('click', stopCode);
-    
-    window.addEventListener('load', () => {
-      spectrumImage.src = '';
-      showStatus('Hazır. Başlatmak için "Kod Başlat" düğmesine tıklayın.');
+
+    startBtn.addEventListener("click", startCode);
+    stopBtn.addEventListener("click", stopCode);
+
+    window.addEventListener("load", () => {
+      spectrumImage.src = "";
+      showStatus('Ready. Click "Start Code" to begin.');
     });
   </script>
 </body>
